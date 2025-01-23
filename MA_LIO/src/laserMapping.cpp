@@ -288,6 +288,14 @@ void lidar_cbk_(const sensor_msgs::PointCloud2::ConstPtr &scanMsg_,
     standard_pcl_cbk(scanMsg_, 0);
     standard_pcl_cbk(scanMsg2_, 1);
 }*/
+
+void lidar_cbk_(const sensor_msgs::PointCloud2::ConstPtr &scanMsg_,
+                const livox_ros_driver::CustomMsg::ConstPtr &scanMsg2_)
+{
+    standard_pcl_cbk(scanMsg_, 0);
+    livox_pcl_cbk(scanMsg2_, 1);
+}
+
 void extrinsic_update()
 {
     extrinsic.clear();
@@ -899,7 +907,7 @@ int main(int argc, char **argv)
     // typedef message_filters::sync_policies::ApproximateTime<Your Msg1, Your Msg2> LidarSyncPolicy;
     // Especially, if you want to use only 1 lidar, define the ApproximateTime as
     // typedef message_filters::sync_policies::ApproximateTime<Your Msg1, Your Msg1> LidarSyncPolicy
-    typedef message_filters::sync_policies::ApproximateTime<LidarMsgType, LivoxMsgType, LivoxMsgType> LidarSyncPolicy;
+    /*typedef message_filters::sync_policies::ApproximateTime<LidarMsgType, LivoxMsgType, LivoxMsgType> LidarSyncPolicy;
     typedef message_filters::Synchronizer<LidarSyncPolicy> Sync;
 
     // 2. Change the synchronizer based on sync_policies
@@ -910,16 +918,16 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<LidarSyncPolicy> *sync =
         new message_filters::Synchronizer<LidarSyncPolicy>(
             LidarSyncPolicy(10), *sub_spin[0], *sub_livox[0], *sub_livox[1]);
-    sync->registerCallback(boost::bind(&lidar_cbk_, _1, _2, _3));
+    sync->registerCallback(boost::bind(&lidar_cbk_, _1, _2, _3));*/
 
     /*** For UrbanNav Dataset (Case: LiDAR 2)***/
-    /*typedef message_filters::sync_policies::ApproximateTime<LidarMsgType, LidarMsgType> LidarSyncPolicy;
+    typedef message_filters::sync_policies::ApproximateTime<LidarMsgType, LivoxMsgType> LidarSyncPolicy;
     typedef message_filters::Synchronizer<LidarSyncPolicy> Sync;
 
     message_filters::Synchronizer<LidarSyncPolicy> *sync =
         new message_filters::Synchronizer<LidarSyncPolicy>(
-            LidarSyncPolicy(10), *sub_spin[0], *sub_spin[1]);
-    sync->registerCallback(boost::bind(&lidar_cbk_, _1, _2));*/
+            LidarSyncPolicy(10), *sub_spin[0], *sub_livox[0]);
+    sync->registerCallback(boost::bind(&lidar_cbk_, _1, _2));
 
     ros::Subscriber sub_imu = nh.subscribe(imu_topic, 200000, imu_cbk);
     ros::Publisher pubLaserCloudFull = nh.advertise<sensor_msgs::PointCloud2>("/cloud_registered", 100000);
